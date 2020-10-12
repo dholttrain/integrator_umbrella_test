@@ -11,14 +11,18 @@ defmodule IntegratorWeb.UserControllerTest do
     last_name: "some last_name",
     sf_id: "some sf_id"
   }
-  @update_attrs %{
+  @update_put_attrs %{
     company_name: "some updated company_name",
     email: "some updated email",
     first_name: "some updated first_name",
     last_name: "some updated last_name",
     sf_id: "some updated sf_id"
   }
-  @invalid_attrs %{company_name: nil, email: nil, first_name: nil, last_name: nil, sf_id: nil}
+  @update_patch_attrs %{
+    email: "some updated email"
+  }
+  @invalid_full_attrs %{company_name: nil, email: nil, first_name: nil, last_name: nil, sf_id: nil}
+  @invalid_patch_attrs %{email: nil}
 
   def fixture(:user) do
     {:ok, user} = Users.create_user(@create_attrs)
@@ -54,16 +58,16 @@ defmodule IntegratorWeb.UserControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.user_path(conn, :create), user: @invalid_attrs)
+      conn = post(conn, Routes.user_path(conn, :create), user: @invalid_full_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
 
-  describe "update user" do
+  describe "update user - PUT" do
     setup [:create_user]
 
     test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
-      conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
+      conn = put(conn, Routes.user_path(conn, :update, user), user: @update_put_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
       conn = get(conn, Routes.user_path(conn, :show, id))
@@ -79,7 +83,32 @@ defmodule IntegratorWeb.UserControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, user: user} do
-      conn = put(conn, Routes.user_path(conn, :update, user), user: @invalid_attrs)
+      conn = put(conn, Routes.user_path(conn, :update, user), user: @invalid_full_attrs)
+      assert json_response(conn, 422)["errors"] != %{}
+    end
+  end
+
+  describe "update user - PATCH" do
+    setup [:create_user]
+
+    test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
+      conn = patch(conn, Routes.user_path(conn, :update, user), user: @update_patch_attrs)
+      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+
+      conn = get(conn, Routes.user_path(conn, :show, id))
+
+      assert %{
+               "id" => id,
+               "company_name" => "some company_name",
+               "email" => "some updated email",
+               "first_name" => "some first_name",
+               "last_name" => "some last_name",
+               "sf_id" => "some sf_id"
+             } = json_response(conn, 200)["data"]
+    end
+
+    test "renders errors when data is invalid", %{conn: conn, user: user} do
+      conn = put(conn, Routes.user_path(conn, :update, user), user: @invalid_patch_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
