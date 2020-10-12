@@ -8,14 +8,14 @@ use Mix.Config
 config :integrator, Integrator.Repo,
   username: "postgres",
   password: "postgres",
-  database: "integrator_test#{System.get_env("MIX_TEST_PARTITION")}",
+  database: "temp_integrator_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :integrator_web, IntegratorWeb.Endpoint,
-  http: [port: 4002],
+  http: [port: 4042],
   server: false
 
 # Print only warnings and errors during test
